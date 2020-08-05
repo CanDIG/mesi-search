@@ -11,6 +11,7 @@ mkShell {
     zlib.dev
     libffi
     libffi.dev
+    travis
   ];
   shellHook = ''
     export PYTHONPATH=`pwd`/$VENV/${python.sitePackages}:$PYTHONPATH
