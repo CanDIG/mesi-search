@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+## Fixed
+- `Sphinx` docs pointing to incorrect `rst` files
+
 ## 0.0.3
 ### Added
 - LICENSE (AGPL)
