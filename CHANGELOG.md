@@ -1,7 +1,10 @@
 # Changelog
 
-## 0.0.2
+## 0.0.3
+### Added
+- LICENSE (AGPL)
 
+## 0.0.2
 ### Added
 - `Pyscaffolding` is started 
 
