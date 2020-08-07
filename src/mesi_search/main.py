@@ -1,56 +1,47 @@
 # -*- coding: utf-8 -*-
-"""MESI application, main
-"""
-from flask import Flask, jsonify, request, Response
+"""MESI application, main"""
+import asyncio
+import candig
 from flasgger import swag_from, Swagger
+from flask import Flask, jsonify, render_template
+
+swagger_config = {
+    "swagger": "2.0",
+    "headers": [
+    ],
+    "specs": [
+        {
+            "endpoint": 'apispec_1',
+            "route": '/apispec_1.json',
+            "rule_filter": lambda rule: True,
+            "model_filter": lambda tag: True,
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/api"
+}
 
 app = Flask(__name__)
-swagger = Swagger(app)
+swagger = Swagger(app, config=swagger_config)
 
 
-@swagger.definition('Pet')
-class Pet(object):
-    """
-    Pet Object
-    ---
-    properties:
-        name:
-            type: string
-    """
-    def __init__(self, name):
-        self.name = str(name)
+# TODO: Logging (async)
 
-    def dump(self):
-        return dict(vars(self).items())
-
-
-@app.route('/')
+@app.route('/', methods=['GET'])
 def home():
-    return 'Welcome to MESI Search!'
+    """Home page"""
+    return render_template("home.html")
 
 
-@app.route('/discover', methods=['POST'])
-@swag_from()
+@app.route('/api/discover', methods=['POST'])
+@swag_from('resources/discovery.yaml')
 def discover():
-    """
-    aaaaaaaaaaaaaaaaaaaaaaaaaaaa
-    ---
-    description: Post a request body
-    requestBody:
-        content:
-            application/json:
-                schema:
-                    $ref: '#/definitions/Pet'
-        required: true
-    responses:
-        200:
-            description: The posted request body
-            content:
-                application/json:
-                    schema:
-                        $ref: '#/definitions/Pet'
-    """
-    return jsonify(request.json)
+    """Search endpoint to discover possible data sets available"""
+    raw_results = asyncio.run(candig.raw_results())
+    print(raw_results.json())
+    result = raw_results.json()
+    return jsonify(result)
 
 
 if __name__ == '__main__':

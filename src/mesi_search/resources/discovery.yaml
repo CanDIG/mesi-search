@@ -1,0 +1,28 @@
+consumes:
+  - application/json
+produces:
+  - application/json
+
+parameters:
+  - in: body
+    required: true
+    name: query
+    schema:
+      $ref: '#/definitions/DiscoveryQuery'
+
+responses:
+  200:
+    description: Search results OK
+    schema:
+      $ref: '#/definitions/DiscoveryResult'
+
+definitions:
+  DiscoveryQuery:
+    type: object
+    required:
+      - term
+    properties:
+      term:
+        type: string
+  DiscoveryResult:
+    type: object
