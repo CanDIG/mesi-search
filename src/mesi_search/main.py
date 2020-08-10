@@ -38,7 +38,7 @@ def home():
 @swag_from('resources/discovery.yaml')
 def discover():
     """Search endpoint to discover possible data sets available"""
-    raw_results = asyncio.run(candig.raw_results())
+    raw_results = candig.raw_results()
     print(raw_results.json())
     result = raw_results.json()
     return jsonify(result)

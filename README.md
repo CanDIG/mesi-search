@@ -36,7 +36,7 @@ pip install .
 ### Run using `gunicorn`
 
 ```bash
-gunicorn --workers 2 --bind 0.0.0.0:5000 run:app --chdir bin  
+gunicorn --workers 2 --bind 0.0.0.0:5000 -k gevent run:app --chdir bin
 ```
 
 
