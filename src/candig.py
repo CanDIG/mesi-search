@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
-"""CanDIG API Requests"""
+"""CanDIG API Requests
+
+This is a very crude style of writing utility functions
+to make API requests to CanDIG server. This could easily be
+a Flask middleware as long as we define the interface. That
+means, then it can be extended easily for other APIs that
+provide data. Or perhaps some GA4GH API based middleware.
+"""
 
 import json
 
 import diffprivlib as dp
 import dpath.util
 import requests
-from config import CANDIG_UPSTREAM_API
+from config import CANDIG_UPSTREAM_API, DP_EPSILON, DP_DELTA
 
 DEFAULT_HEADERS = {
     "Accept": "application/json",
@@ -37,17 +44,20 @@ def percentage(data={}, private_data={}, term=None):
     return result
 
 
-def private_sum(data={}, term=None, path=""):
+def private_sum(term=None, path="", data={}, dp_acc={}):
     """Calculate differentially private sum of the `attributeOfInterest`"""
     result = {}
-    acc = dp.BudgetAccountant(epsilon=12, delta=0)
-    normal = filter(data, term, path)
+    normal_data = filter(data, term, path)
 
-    for k in normal:
-        values = list(normal[k].values())
+    for attribute_item in normal_data:
+        values = list(normal_data[attribute_item].values())
         lower_bound = min(values)
         upper_bound = sum(values)
-        result[k] = dp.tools.sum(list(normal[k].values()), bounds=(lower_bound, upper_bound), accountant=acc)
+        if dp_acc.remaining()[0] > 0:
+            result[attribute_item] = dp.tools.sum(list(normal_data[attribute_item].values()),
+                                                  bounds=(lower_bound, upper_bound), accountant=dp_acc)
+        else:
+            result[attribute_item] = 0
     return result
 
 
