@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """MESI application, main"""
-import asyncio
+
 import candig
 from flasgger import swag_from, Swagger
 from flask import Flask, jsonify, render_template
@@ -26,7 +26,7 @@ app = Flask(__name__)
 swagger = Swagger(app, config=swagger_config)
 
 
-# TODO: Logging (async)
+# TODO: Logging
 
 @app.route('/', methods=['GET'])
 def home():
@@ -39,8 +39,7 @@ def home():
 def discover():
     """Search endpoint to discover possible data sets available"""
     raw_results = candig.raw_results()
-    print(raw_results.json())
-    result = raw_results.json()
+    result = raw_results
     return jsonify(result)
 
 
