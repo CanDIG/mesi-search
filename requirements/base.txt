@@ -8,3 +8,4 @@ environs==8.0.0
 diffprivlib==0.3.0
 requests=2.24.0
 dpath==2.0.1
+PyScaffold==3.2.3

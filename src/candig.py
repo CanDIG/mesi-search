@@ -13,7 +13,7 @@ import json
 import diffprivlib as dp
 import dpath.util
 import requests
-from config import CANDIG_UPSTREAM_API, DP_EPSILON, DP_DELTA
+from config import CANDIG_UPSTREAM_API
 
 DEFAULT_HEADERS = {
     "Accept": "application/json",
