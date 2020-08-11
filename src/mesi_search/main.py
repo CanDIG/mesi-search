@@ -47,14 +47,15 @@ def discover():
     # TODO: filter out results even prior for this view for better privacy
     raw_results = candig.raw_results()
     # get the data for attribute of interest
-    filtered_results = candig.filter(raw_results, attribute_of_interest, "/results/patients")
-    print("filtered results: ", filtered_results)
+    filtered_data = candig.filter(raw_results, attribute_of_interest, "/results/patients")
+    # get the private sum
+    private_sum = candig.private_sum(raw_results, attribute_of_interest, "/results/patients")
     # calculate the percentage
-    x = candig.percentage(filtered_results, search_term)
+    x = candig.percentage(filtered_data, private_sum, search_term)
     print("percentage: ", x)
 
     result = raw_results
-    return jsonify(result)
+    return jsonify(x)
 
 
 if __name__ == '__main__':

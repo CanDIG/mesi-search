@@ -2,6 +2,8 @@
 """CanDIG API Requests"""
 
 import json
+
+import diffprivlib as dp
 import dpath.util
 import requests
 from config import CANDIG_UPSTREAM_API
@@ -12,19 +14,42 @@ DEFAULT_HEADERS = {
 }
 
 
-def percentage(data={}, term=None):
-    """finds the percentage of the term wihtin the data,
+def percentage(data={}, private_data={}, term=None):
+    """finds the percentage of the term within the data,
     if the term exists"""
     perc = {}
-    if data and term:
+    if data and private_data and term:
         for k in data:
             if term in data[k].keys():
                 term_val = data[k].get(term, 0)
-                vals = sum(dpath.util.values(data[k], "/*"))
-                perc[k] = 100 * term_val/vals
+                priv_sum = private_data[k]
+                if float(priv_sum) != 0.0:
+                    perc[k] = 100 * term_val / priv_sum
+                else:
+                    perc[k] = 0
             else:
                 pass
     return perc
+
+
+def private_sum(data={}, term=None, path=""):
+    priv_sum = {}
+    acc = dp.BudgetAccountant(epsilon=12, delta=0.1)
+    normal = filter(data, term, path)
+    print("normal: ", normal)
+    for k in normal:
+        print("dataset: ", k)
+        print("remaining priv: ", acc.remaining())
+        print("spent budget: ", acc.spent_budget)
+        upper_bound = sum(list(normal[k].values()))
+        priv_sum[k] = dp.tools.sum(list(normal[k].values()), bounds=(0, upper_bound), accountant=acc)
+        # print(normal[k].values())
+        print("sum: ", upper_bound)
+        print("private sum: ", priv_sum[k])
+        print("===========================\n")
+    print("\n\n")
+    print(priv_sum)
+    return priv_sum
 
 
 def filter(data={}, term=None, path=""):
@@ -61,49 +86,49 @@ def raw_results():
 def prepare_count_query(dataset_id=None):
     """CanDIG count endpoint needs some specific JSON"""
     base_query = {
-      "logic": {
-        "and": [
-          {
-            "id": "A"
-          }
-        ]
-      },
-      "components": [
-        {
-          "id": "A",
-          "outcomes": {
-            "filters": [
-              {
-                "field": "diseaseResponseOrStatus",
-                "operator": "==",
-                "value": "Complete Response"
-              }
+        "logic": {
+            "and": [
+                {
+                    "id": "A"
+                }
             ]
-          }
-        }
-      ],
-      "results": [
-        {
-          "table": "patients",
-          "fields": [
-            "dateOfBirth",
-            "gender",
-            "ethnicity",
-            "race",
-            "provinceOfResidence",
-            "dateOfDeath",
-            "causeOfDeath",
-            "autopsyTissueForResearch",
-            "dateOfPriorMalignancy",
-            "familyHistoryAndRiskFactors",
-            "familyHistoryOfPredispositionSyndrome",
-            "detailsOfPredispositionSyndrome",
-            "geneticCancerSyndrome",
-            "otherGeneticConditionOrSignificantComorbidity",
-            "occupationalOrEnvironmentalExposure"
-          ]
-        }
-      ]
+        },
+        "components": [
+            {
+                "id": "A",
+                "outcomes": {
+                    "filters": [
+                        {
+                            "field": "diseaseResponseOrStatus",
+                            "operator": "==",
+                            "value": "Complete Response"
+                        }
+                    ]
+                }
+            }
+        ],
+        "results": [
+            {
+                "table": "patients",
+                "fields": [
+                    "dateOfBirth",
+                    "gender",
+                    "ethnicity",
+                    "race",
+                    "provinceOfResidence",
+                    "dateOfDeath",
+                    "causeOfDeath",
+                    "autopsyTissueForResearch",
+                    "dateOfPriorMalignancy",
+                    "familyHistoryAndRiskFactors",
+                    "familyHistoryOfPredispositionSyndrome",
+                    "detailsOfPredispositionSyndrome",
+                    "geneticCancerSyndrome",
+                    "otherGeneticConditionOrSignificantComorbidity",
+                    "occupationalOrEnvironmentalExposure"
+                ]
+            }
+        ]
     }
 
     if dataset_id:
