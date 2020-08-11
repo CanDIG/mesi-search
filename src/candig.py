@@ -2,7 +2,7 @@
 """CanDIG API Requests"""
 
 import json
-
+import dpath.util
 import requests
 from config import CANDIG_UPSTREAM_API
 
