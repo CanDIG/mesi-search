@@ -12,6 +12,36 @@ DEFAULT_HEADERS = {
 }
 
 
+def percentage(data={}, term=None):
+    """finds the percentage of the term wihtin the data,
+    if the term exists"""
+    perc = {}
+    if data and term:
+        for k in data:
+            if term in data[k].keys():
+                term_val = data[k].get(term, 0)
+                vals = sum(dpath.util.values(data[k], "/*"))
+                perc[k] = 100 * term_val/vals
+            else:
+                pass
+    return perc
+
+
+def filter(data={}, term=None, path=""):
+    """Return the subset of the key/value within a nested
+    CanDIG data
+    Uses `dpath` package that makes it easy to work with
+    dicts using path-based access
+    """
+    filtered_result = {}
+    if data and term:
+        for k in data:
+            patients_data = dpath.util.get(data[k], path)
+            if patients_data and len(patients_data) == 1:  # TODO: check for >1
+                filtered_result[k] = dpath.util.get(patients_data[0], term)
+    return filtered_result
+
+
 def raw_results():
     """Fetch raw results from CanDIG API"""
     dataset_query = json.dumps({"pageSize": 1000, "pageToken": 0})

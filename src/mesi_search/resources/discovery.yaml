@@ -16,13 +16,28 @@ responses:
     schema:
       $ref: '#/definitions/DiscoveryResult'
 
+# TODO: add examples to these attributes
 definitions:
   DiscoveryQuery:
+    description: Is there X in the set and what is the percentage of that within the set?
     type: object
     required:
+      - attributeOfInterest
       - term
     properties:
+      attributeOfInterest:
+        type: string
+        enum: ["gender", "ethnicity", "race", "provinceOfResidence", "causeOfDeath", "occupationalOrEnvironmentalExposure"]
+        description: >
+          X or Attribute of Interest is one of:
+            * gender
+            * ethnicity
+            * race
+            * provinceOfResidence
+            * causeOfDeath
+            * occupationalOrEnvironmentalExposure
       term:
         type: string
+        description: Search for the term within your selected attributeOfInterest
   DiscoveryResult:
     type: object

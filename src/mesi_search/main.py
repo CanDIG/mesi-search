@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """MESI application, main"""
 
+import json
+
 import candig
 from flasgger import swag_from, Swagger
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 
 swagger_config = {
     "swagger": "2.0",
@@ -35,10 +37,22 @@ def home():
 
 
 @app.route('/api/discover', methods=['POST'])
-@swag_from('resources/discovery.yaml')
+@swag_from('resources/discovery.yaml', validation=True)
 def discover():
     """Search endpoint to discover possible data sets available"""
+    incoming_post_data = json.loads(request.data.decode("utf-8"))
+    attribute_of_interest = incoming_post_data.get("attributeOfInterest", None)
+    search_term = incoming_post_data.get("term", None)
+
+    # TODO: filter out results even prior for this view for better privacy
     raw_results = candig.raw_results()
+    # get the data for attribute of interest
+    filtered_results = candig.filter(raw_results, attribute_of_interest, "/results/patients")
+    print("filtered results: ", filtered_results)
+    # calculate the percentage
+    x = candig.percentage(filtered_results, search_term)
+    print("percentage: ", x)
+
     result = raw_results
     return jsonify(result)
 
