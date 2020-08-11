@@ -17,39 +17,38 @@ DEFAULT_HEADERS = {
 def percentage(data={}, private_data={}, term=None):
     """finds the percentage of the term within the data,
     if the term exists"""
-    perc = {}
+    result = {}
+    term = str(term).lower()  # normalize
+
     if data and private_data and term:
-        for k in data:
-            if term in data[k].keys():
-                term_val = data[k].get(term, 0)
-                priv_sum = private_data[k]
+        for dataset in data:
+            # normalize keys to lowercase
+            data[dataset] = {k.lower(): v for k, v in data[dataset].items()}
+
+            if term in data[dataset].keys():  # checks for exact key for now
+                term_val = data[dataset].get(term, 0)
+                priv_sum = private_data[dataset]
                 if float(priv_sum) != 0.0:
-                    perc[k] = 100 * term_val / priv_sum
+                    result[dataset] = 100 * term_val / priv_sum
                 else:
-                    perc[k] = 0
+                    result[dataset] = 0  # TODO: revisit because may impact utility
             else:
                 pass
-    return perc
+    return result
 
 
 def private_sum(data={}, term=None, path=""):
-    priv_sum = {}
-    acc = dp.BudgetAccountant(epsilon=12, delta=0.1)
+    """Calculate differentially private sum of the `attributeOfInterest`"""
+    result = {}
+    acc = dp.BudgetAccountant(epsilon=12, delta=0)
     normal = filter(data, term, path)
-    print("normal: ", normal)
+
     for k in normal:
-        print("dataset: ", k)
-        print("remaining priv: ", acc.remaining())
-        print("spent budget: ", acc.spent_budget)
-        upper_bound = sum(list(normal[k].values()))
-        priv_sum[k] = dp.tools.sum(list(normal[k].values()), bounds=(0, upper_bound), accountant=acc)
-        # print(normal[k].values())
-        print("sum: ", upper_bound)
-        print("private sum: ", priv_sum[k])
-        print("===========================\n")
-    print("\n\n")
-    print(priv_sum)
-    return priv_sum
+        values = list(normal[k].values())
+        lower_bound = min(values)
+        upper_bound = sum(values)
+        result[k] = dp.tools.sum(list(normal[k].values()), bounds=(lower_bound, upper_bound), accountant=acc)
+    return result
 
 
 def filter(data={}, term=None, path=""):

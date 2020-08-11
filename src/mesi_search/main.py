@@ -36,11 +36,11 @@ def home():
     return render_template("home.html")
 
 
-@app.route('/api/discover', methods=['POST'])
+@app.route('/api/candig/discover/patient', methods=['POST'])
 @swag_from('resources/discovery.yaml', validation=True)
-def discover():
+def candig_discover_patient():
     """Search endpoint to discover possible data sets available"""
-    incoming_post_data = json.loads(request.data.decode("utf-8"))
+    incoming_post_data = json.loads(request.data.decode("utf-8"))  # receives as bytes
     attribute_of_interest = incoming_post_data.get("attributeOfInterest", None)
     search_term = incoming_post_data.get("term", None)
 
@@ -50,12 +50,10 @@ def discover():
     filtered_data = candig.filter(raw_results, attribute_of_interest, "/results/patients")
     # get the private sum
     private_sum = candig.private_sum(raw_results, attribute_of_interest, "/results/patients")
-    # calculate the percentage
-    x = candig.percentage(filtered_data, private_sum, search_term)
-    print("percentage: ", x)
-
-    result = raw_results
-    return jsonify(x)
+    # calculate the percentage based on private sum
+    percent = candig.percentage(filtered_data, private_sum, search_term)
+    result = {search_term: percent}
+    return jsonify(result)
 
 
 if __name__ == '__main__':
