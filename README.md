@@ -13,7 +13,7 @@ pip install -e .
 pip install -r requirements/dev.txt
 ```
 
-### Run
+### Run project
 
 ```bash 
 python bin/run.py
@@ -21,6 +21,26 @@ python bin/run.py
 or
 ```bash
 ./bin/run.py
+```
+
+### Run tests
+
+The best usage is to just run `tox`.
+
+```
+tox
+```
+
+Alternatively, `pytest` can be invoked
+
+```bash
+pytest
+```
+
+Also, via `setup.py`
+
+```bash
+python setup.py test
 ```
 
 ## Deployment
