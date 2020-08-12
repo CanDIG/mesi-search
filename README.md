@@ -1,6 +1,14 @@
-# mesi-search
+# Minimizing Exposure of Sensitive Information (MESI) Search
+
+A simple proof-of-concept of differentially private search using CanDIG
+API for data discovery for potential use. 
 
 ## Description
+
+A project that uses [CanDIG](https://www.distributedgenomics.ca/), can expose 
+a `/count` API that returns numerical data of various attributes of the data
+it serves. This application is a simple shim that allows non-members of the
+project to "search" for their interests.
 
 ## Development
 
