@@ -10,13 +10,71 @@ parameters:
     schema:
       $ref: '#/definitions/DiscoveryQuery'
 
+    examples:
+      gender:
+        attributeOfInterest: "gender"
+        term:
+          oneOf:  # I do not make this, this is in the data :(
+            - "female"
+            - "male"
+      ethnicity:
+        attributeOfInterest: "ethnicity"
+        term:
+          oneOf:
+            - "Chinese"
+            - "French"
+            - "Canadian"
+      race:
+        attributeOfInterest: "race"
+        term:
+          oneOf:
+            - "Black/African American"
+            - "Asian"
+            - "Caucasian"
+            - "Aboriginal"
+      provinceOfResidence:
+        attributeOfInterest: "provinceOfResidence"
+        term:
+          oneOf:
+            - "Quebec"
+            - "Prince Edward Island"
+            - "Alberta"
+            - "Yukon"
+            - "Navanut"
+            - "Ontario"
+            - "British Columbia"
+            - "Newfoundland and Labrador"
+            - "Saskatchewan"
+            -  "Manitoba"
+      causeOfDeath:
+        attributeOfInterest: "causeOfDeath"
+        term:
+          oneOf:
+            - "Myocardial infarction"
+            - "Sepsis"
+            - "Cancer"
+            - "Disease"
+            - "Acute disease"
+            - "Coronary artery disease"
+      occupationalOrEnvironmentalExposure:
+        attributeOfInterest: "occupationalOrEnvironmentalExposure"
+        term:
+          oneOf:
+            - "Pollen"
+            - "Formaldehyde"
+            - "Lead"
+            - "Ginkgo"
+            - "Bisphenol A (BPA)"
+            - "Radon"
+
+
 responses:
   200:
     description: Search results OK
     schema:
       $ref: '#/definitions/DiscoveryResult'
 
-# TODO: add examples to these attributes
+
 definitions:
   DiscoveryQuery:
     description: Is there X in the set and what is the percentage of that within the set?
@@ -39,5 +97,6 @@ definitions:
       term:
         type: string
         description: Search for the term within your selected attributeOfInterest
+
   DiscoveryResult:
     type: object
