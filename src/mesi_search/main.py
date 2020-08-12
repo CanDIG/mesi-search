@@ -3,9 +3,9 @@
 
 import json
 
-import candig
+from mesi_search import candig
 from flasgger import swag_from, Swagger
-from flask import Flask, jsonify, render_template, request, session
+from flask import Flask, jsonify, render_template, request
 import diffprivlib as dp
 from config import DP_EPSILON, DP_DELTA
 
