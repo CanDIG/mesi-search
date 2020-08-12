@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 - 2020-08-11
 ### Fixed
 - `Sphinx` docs pointing to incorrect `rst` files
 ### Added
