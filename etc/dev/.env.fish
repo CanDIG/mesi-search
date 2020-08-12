@@ -5,3 +5,5 @@ set FLASK_ENV development
 set GUNICORN_WORKERS 1
 set LOG_LEVEL debug
 set SECRET_KEY not-so-secret
+
+set CANDIG_UPSTREAM_API http://localhost:3000

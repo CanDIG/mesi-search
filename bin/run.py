@@ -8,9 +8,8 @@ After you have configured your Python environment:
 """
 from mesi_search import main
 
-app = main.app
+app = main.APP
 app.config.from_object("config")
-
 
 if __name__ == '__main__':
     app.run()

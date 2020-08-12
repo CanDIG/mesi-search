@@ -11,9 +11,12 @@ mkShell {
     zlib.dev
     libffi
     libffi.dev
+    travis
+    stdenv.cc.cc.lib
+    pam
   ];
   shellHook = ''
-    export PYTHONPATH=`pwd`/$VENV/${python.sitePackages}:$PYTHONPATH
-
+    export PYTHONPATH=`pwd`/$VENV/${python.sitePackages}:$PYTHONPATH;
+    export LD_LIBRARY_PATH="${stdenv.cc.cc.lib}/lib64:$LD_LIBRARY_PATH";
   '';
 }
