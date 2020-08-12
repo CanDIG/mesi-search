@@ -1,8 +1,10 @@
 # Changelog
 
 ## Unreleased
-## Fixed
+### Fixed
 - `Sphinx` docs pointing to incorrect `rst` files
+### Added
+- Basic system for DP and service are in place
 
 ## 0.0.3
 ### Added
