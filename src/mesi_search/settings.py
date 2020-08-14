@@ -3,7 +3,7 @@
 
 Most configuration is set via environment variables.
 Create a `.env` file in the current directory where
-this `config.py` is and add environment variables that
+this `settings.py` is and add environment variables that
 are required
 
 For examples, see `etc/dev/.env.bash` or `etc/dev/.env.fish`

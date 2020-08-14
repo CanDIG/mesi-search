@@ -9,7 +9,7 @@ After you have configured your Python environment:
 from mesi_search import main
 
 app = main.APP
-app.config.from_object("config")
+app.config.from_object("mesi_search.settings")
 
 if __name__ == '__main__':
     app.run()

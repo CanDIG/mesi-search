@@ -13,7 +13,7 @@ import json
 import diffprivlib as dp
 import dpath.util
 import requests
-from config import CANDIG_UPSTREAM_API
+from mesi_search.settings import CANDIG_UPSTREAM_API
 
 DEFAULT_HEADERS = {
     "Accept": "application/json",
@@ -47,23 +47,25 @@ def percentage(data={}, private_data={}, term=None):
 def private_sum(term=None, path="", data={}, dp_acc={}):
     """Calculate differentially private sum of the `attributeOfInterest`"""
     result = {}
-    normal_data = filter(data, term, path)
+    normal_data = data_filter(data, term, path)
 
     for attribute_item in normal_data:
         values = list(normal_data[attribute_item].values())
         lower_bound = min(values)
         upper_bound = sum(values)
         if dp_acc.remaining()[0] > 0:
-            result[attribute_item] = dp.tools.sum(list(normal_data[attribute_item].values()),
-                                                  bounds=(lower_bound, upper_bound), accountant=dp_acc)
+            result[attribute_item] = dp.tools.sum(
+                list(normal_data[attribute_item].values()),
+                bounds=(lower_bound, upper_bound), accountant=dp_acc
+            )
         else:
             result[attribute_item] = 0
     return result
 
 
-def filter(data={}, term=None, path=""):
-    """Return the subset of the key/value within a nested
-    CanDIG data
+def data_filter(data={}, term=None, path=""):
+    """Return the subset of the key/value within a nested CanDIG data
+
     Uses `dpath` package that makes it easy to work with
     dicts using path-based access
     """
@@ -76,18 +78,13 @@ def filter(data={}, term=None, path=""):
     return filtered_result
 
 
-def raw_results():
+def raw_results(candig_datasets):
     """Fetch raw results from CanDIG API"""
-    dataset_query = json.dumps({"pageSize": 1000, "pageToken": 0})
-    result = candig_request(url="/datasets/search", json=dataset_query)
-    result = result.json()  # result as dict
-    datasets_id = candig_datasets(result)
-
     collective_counts = {}
-    for did in datasets_id:
+    for did in candig_datasets:
         query = prepare_count_query(did)
         if query is not {}:
-            count_result = candig_request(url="/count", json=query)
+            count_result = request(url="/count", json_data=query)
             collective_counts[did] = count_result.json()
     return collective_counts
 
@@ -147,14 +144,19 @@ def prepare_count_query(dataset_id=None):
     return base_query
 
 
-def candig_datasets(dataset_search={}):
-    datasets = dataset_search.get("results", {}).get("datasets", {})
+def datasets():
+    """Fetch datasets from the CanDIG API"""
+    dataset_query = json.dumps({"pageSize": 1000, "pageToken": 0})
+    result = request(url="/datasets/search", json_data=dataset_query)
+    result = result.json()  # result as dict
+    datasets = dpath.util.get(result, "/results/datasets")
     dataset_ids = [d.get("id", None) for d in datasets if datasets]
     return dataset_ids
 
 
-def candig_request(url="/", json={}, headers=DEFAULT_HEADERS):
+def request(url="/", json_data={}, headers=DEFAULT_HEADERS):
     """CanDIG API request"""
+    # TODO: Write better API calls, bubble up errors from upstream
     request_url = CANDIG_UPSTREAM_API + url
-    result = requests.post(request_url, json=json, headers=headers)
+    result = requests.post(request_url, json=json_data, headers=headers)
     return result

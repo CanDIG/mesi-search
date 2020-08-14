@@ -14,6 +14,7 @@ mkShell {
     travis
     stdenv.cc.cc.lib
     pam
+    python38Packages.tox
   ];
   shellHook = ''
     export PYTHONPATH=`pwd`/$VENV/${python.sitePackages}:$PYTHONPATH;
