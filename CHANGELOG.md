@@ -1,7 +1,8 @@
 # Changelog
 
 ## Unreleased
-
+### Added
+- Tests (2020-08-13)
 
 ## 0.1.0 - 2020-08-11
 ### Fixed
