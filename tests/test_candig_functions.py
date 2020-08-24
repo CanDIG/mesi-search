@@ -2,7 +2,6 @@
 
 from mesi_search import candig
 from requests.models import Response
-import diffprivlib as dp
 
 
 def test_candig_datasets(mocker):
@@ -113,16 +112,16 @@ def test_candig_filter():
             }
         }
     }
-    filtered_result = candig.data_filter(data=test_data, term="causeOfDeath",
+    filtered_result = candig.data_filter(data=test_data, terms=["causeOfDeath"],
                                          path="/results/patients")
-    assert filtered_result["dataset-1"]["Cancer"] == 32
-    assert filtered_result["dataset-1"]["Heart"] == 23
-    assert filtered_result["dataset-2"]["Cancer"] == 11
-    assert filtered_result["dataset-2"]["Heart"] == 33
+    assert filtered_result["dataset-1"]["causeOfDeath"]["Cancer"] == 32
+    assert filtered_result["dataset-1"]["causeOfDeath"]["Heart"] == 23
+    assert filtered_result["dataset-2"]["causeOfDeath"]["Cancer"] == 11
+    assert filtered_result["dataset-2"]["causeOfDeath"]["Heart"] == 33
 
 
-def test_candig_private_sum():
-    """Test differentially private sum given a dict"""
+def test_candig_private_filter():
+    """Test differentially private filter"""
     test_data = {
         "dataset-1": {
             "results": {
@@ -150,8 +149,8 @@ def test_candig_private_sum():
             }
         }
     }
-    dp_acc = dp.BudgetAccountant(epsilon=100, delta=0)
-    ps = candig.private_sum("causeOfDeath",
-                            "/results/patients", test_data, dp_acc)
-    assert ps["dataset-1"] > 23
-    assert ps["dataset-2"] > 11
+
+    ps = candig.private_data_filter(data=test_data, terms=["causeOfDeath"],
+                                    path="/results/patients")
+    assert ps["dataset-1"]["causeOfDeath"]["Cancer"] != 0
+    assert ps["dataset-2"]["causeOfDeath"]["Cancer"] != 0
