@@ -2,7 +2,6 @@
 
 from mesi_search import candig
 from requests.models import Response
-import diffprivlib as dp
 
 
 def test_candig_datasets(mocker):
@@ -33,6 +32,7 @@ def test_candig_datasets(mocker):
 
 def test_candig_raw_results(mocker):
     """Testing the patching CanDIG API request for `raw_results` call"""
+
     def mock_req(url, json_data):  # mock api request for raw results
         r = Response()
         r.status_code = 200
@@ -85,73 +85,20 @@ def test_candig_prepare_count_query():
     assert query["datasetId"] == dataset_id
 
 
-def test_candig_filter():
-    test_data = {
-        "dataset-1": {
-            "results": {
-                "patients": [
-                     {
-                         "causeOfDeath": {
-                             "Cancer": 32,
-                             "Heart": 23,
-                         }
-                     }
-                ]
-            }
-        },
-
-        "dataset-2": {
-            "results": {
-                "patients": [
-                    {
-                        "causeOfDeath": {
-                            "Cancer": 11,
-                            "Heart": 33,
-                        }
-                    }
-                ]
-            }
-        }
-    }
-    filtered_result = candig.data_filter(data=test_data, term="causeOfDeath",
+def test_candig_filter(candig_raw_results):
+    test_data = candig_raw_results
+    filtered_result = candig.data_filter(data=test_data, terms=["causeOfDeath"],
                                          path="/results/patients")
-    assert filtered_result["dataset-1"]["Cancer"] == 32
-    assert filtered_result["dataset-1"]["Heart"] == 23
-    assert filtered_result["dataset-2"]["Cancer"] == 11
-    assert filtered_result["dataset-2"]["Heart"] == 33
+    assert filtered_result["dataset-1"]["causeOfDeath"]["Cancer"] == 32
+    assert filtered_result["dataset-1"]["causeOfDeath"]["Heart"] == 23
+    assert filtered_result["dataset-2"]["causeOfDeath"]["Cancer"] == 11
+    assert filtered_result["dataset-2"]["causeOfDeath"]["Heart"] == 33
 
 
-def test_candig_private_sum():
-    """Test differentially private sum given a dict"""
-    test_data = {
-        "dataset-1": {
-            "results": {
-                "patients": [
-                    {
-                        "causeOfDeath": {
-                            "Cancer": 32,
-                            "Heart": 23,
-                        }
-                    }
-                ]
-            }
-        },
-
-        "dataset-2": {
-            "results": {
-                "patients": [
-                    {
-                        "causeOfDeath": {
-                            "Cancer": 11,
-                            "Heart": 33,
-                        }
-                    }
-                ]
-            }
-        }
-    }
-    dp_acc = dp.BudgetAccountant(epsilon=100, delta=0)
-    ps = candig.private_sum("causeOfDeath",
-                            "/results/patients", test_data, dp_acc)
-    assert ps["dataset-1"] > 23
-    assert ps["dataset-2"] > 11
+def test_candig_private_filter(candig_raw_results):
+    """Test differentially private filter without setting anything"""
+    test_data = candig_raw_results
+    ps = candig.private_data_filter(data=test_data, terms=["causeOfDeath"],
+                                    path="/results/patients")
+    assert ps["dataset-1"]["causeOfDeath"]["Cancer"] != 0
+    assert ps["dataset-2"]["causeOfDeath"]["Cancer"] != 0
