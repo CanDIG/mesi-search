@@ -2,11 +2,13 @@
 """MESI application, main"""
 
 import json
+import logging
 
-from mesi_search import candig
 from flasgger import swag_from, Swagger
 from flask import Flask, jsonify, render_template, request
+from mesi_search import candig
 
+logger = logging.getLogger(__name__)
 APP = Flask(__name__)
 SWAGGER_CONFIG = {
     "swagger": "2.0",
@@ -28,7 +30,6 @@ SWAGGER = Swagger(APP, config=SWAGGER_CONFIG)
 
 
 # TODO: Set the budget tied to session
-# TODO: Logging
 # TODO: Set the budget dynamically if possible
 
 
@@ -42,9 +43,13 @@ def home():
 @swag_from('resources/discovery.yaml', validation=True)
 def discover_candig_patient():
     """Search endpoint to discover possible data sets available"""
+    logger.info("Request for patient discovery endpoint")
+
     result = {}
     incoming_post_data = json.loads(request.data.decode("utf-8"))  # receives as bytes
     attribute_of_interest = incoming_post_data.get("attributesOfInterest", [])
+
+    logger.debug("Chosen attributes of interest are {}".format(attribute_of_interest))
 
     # TODO: filter out results even prior for this view for better privacy
     candig_datasets = candig.datasets()
