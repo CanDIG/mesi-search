@@ -13,7 +13,10 @@ import json
 import diffprivlib as dp
 import dpath.util
 import requests
-from mesi_search.settings import CANDIG_UPSTREAM_API
+from mesi_search.settings import CANDIG_UPSTREAM_API, DP_DELTA, DP_EPSILON
+import copy
+import math
+
 
 DEFAULT_HEADERS = {
     "Accept": "application/json",
@@ -21,61 +24,80 @@ DEFAULT_HEADERS = {
 }
 
 
-def percentage(data={}, private_data={}, term=None):
-    """finds the percentage of the term within the data,
-    if the term exists"""
-    result = {}
-    term = str(term).lower()  # normalize
+def private_data_filter(data={}, terms=[], path=""):
+    """Calculates the differentially private results for given attributes
+    of interest in CanDIG data
 
-    if data and private_data and term:
-        for dataset in data:
-            # normalize keys to lowercase
-            data[dataset] = {k.lower(): v for k, v in data[dataset].items()}
+    @param data: entire patient dataset for CanDIG v1
+    @param terms: a list of attributes of interest to look for in the `data`
+    @param path: path that represents the JSON data structure
+    """
+    filtered_results = data_filter(data, terms, path)
+    private_filtered_results = {}
 
-            if term in data[dataset].keys():  # checks for exact key for now
-                term_val = data[dataset].get(term, 0)
-                priv_sum = private_data[dataset]
-                if float(priv_sum) != 0.0:
-                    result[dataset] = 100 * term_val / priv_sum
-                else:
-                    result[dataset] = 0  # TODO: revisit because may impact utility
-            else:
-                pass
-    return result
+    mech = create_laplace_mechanism(DP_EPSILON, DP_DELTA)
+
+    for dataset_id, dataset in filtered_results.items():
+        private_filtered_results[dataset_id] = randomize(mech, dataset)
+    return private_filtered_results
 
 
-def private_sum(term=None, path="", data={}, dp_acc={}):
-    """Calculate differentially private sum of the `attributeOfInterest`"""
-    result = {}
-    normal_data = data_filter(data, term, path)
-
-    for attribute_item in normal_data:
-        values = list(normal_data[attribute_item].values())
-        lower_bound = min(values)
-        upper_bound = sum(values)
-        if dp_acc.remaining()[0] > 0:
-            result[attribute_item] = dp.tools.sum(
-                list(normal_data[attribute_item].values()),
-                bounds=(lower_bound, upper_bound), accountant=dp_acc
-            )
-        else:
-            result[attribute_item] = 0
-    return result
-
-
-def data_filter(data={}, term=None, path=""):
+def data_filter(data={}, terms=[], path=""):
     """Return the subset of the key/value within a nested CanDIG data
-
     Uses `dpath` package that makes it easy to work with
     dicts using path-based access
+
+    @param data: entire patient dataset for CanDIG v1
+    @param terms: a list of attributes of interest to look for in the `data`
+    @param path: path that represents the JSON data structure
     """
     filtered_result = {}
-    if data and term:
-        for k in data:
-            patients_data = dpath.util.get(data[k], path)
-            if patients_data and len(patients_data) == 1:  # TODO: check for >1
-                filtered_result[k] = dpath.util.get(patients_data[0], term)
+    if data and terms:
+        for dataset_id in data:
+            patients_data = dpath.util.get(data[dataset_id], path)
+            if patients_data and len(patients_data) == 1:  # TODO: check for `>1`
+                term_results = {}
+                for term in terms:
+                    term_results[term] = dpath.util.get(patients_data[0], term)
+                filtered_result[dataset_id] = term_results
     return filtered_result
+
+
+def create_laplace_mechanism(epsilon, delta=0.0):
+    """Returns IBM diff priv library's Laplace Mechanism object"""
+    mech = dp.mechanisms.Laplace()
+    mech.set_epsilon_delta(epsilon, delta)
+    return mech
+
+
+def get_sensitivity(data):
+    """Calculates sensitivity needed for Laplace mechanism
+    This sensitivity is calculated per attribute-of-interest, per dataset
+    as the numbers vary depending on the attribute type
+    """
+    result = 1
+    value_list = []
+    for k, v in data.items():
+        value_list.append(v)
+    if value_list is not []:
+        result = max(value_list) - min(value_list)  # crude sensitivity
+    if result == 0:
+        result = 1
+    return result
+
+
+def randomize(mechanism, data):
+    """Using the `mechamism` send the randomized data
+
+    @param mechanism: IBM diff priv library mechanism object
+    @param data: CanDIG v1 data
+    """
+    result = copy.deepcopy(data)
+    for term, term_specific_data in data.items():
+        mechanism.set_sensitivity(get_sensitivity(term_specific_data))
+        for item, val in term_specific_data.items():
+            result[term][item] = math.ceil(mechanism.randomise(val))
+    return result
 
 
 def raw_results(candig_datasets):
