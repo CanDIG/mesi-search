@@ -30,7 +30,6 @@ SWAGGER = Swagger(APP, config=SWAGGER_CONFIG)
 # TODO: Set the budget tied to session
 # TODO: Logging
 # TODO: Set the budget dynamically if possible
-# TODO: make `attributeOfInterest` as a list
 
 
 @APP.route('/', methods=['GET'])
