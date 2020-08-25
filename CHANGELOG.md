@@ -4,6 +4,7 @@
 ### Added
 - Tests (2020-08-13)
 - Counts based approach instead of sum/percentage (2020-08-24)
+- Session based tracking of requests per user (2020-08-25)
 
 ## 0.1.0 - 2020-08-11
 ### Fixed
