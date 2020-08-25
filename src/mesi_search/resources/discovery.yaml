@@ -20,6 +20,8 @@ responses:
     schema:
       $ref: '#/definitions/DiscoveryResult'
 
+security:
+  - Bearer: []
 
 definitions:
   DiscoveryQuery:

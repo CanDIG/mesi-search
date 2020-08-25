@@ -62,7 +62,11 @@ def data_filter(data={}, terms=[], path=""):
             if patients_data and len(patients_data) == 1:  # TODO: check for `>1`
                 term_results = {}
                 for term in terms:
-                    term_results[term] = dpath.util.get(patients_data[0], term)
+                    try:
+                        term_results[term] = dpath.util.get(patients_data[0], term)
+                    except KeyError as k:
+                        logger.error("Did not find the term {} "
+                                     "in dataset {}".format(term, dataset_id), str(k))
                 filtered_result[dataset_id] = term_results
     return filtered_result
 
