@@ -23,7 +23,6 @@ def test_check_jwt(mocker):
     def mock_get_jwt(req):
         return "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6I" \
                "kpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.pXjao0FHh84o2WZn4jK6MH2T0EzSD671wNq-3Wq1AIk"
-
     mocker.patch(
         "mesi_search.utils.get_jwt",
         mock_get_jwt
@@ -35,7 +34,6 @@ def test_check_jwt(mocker):
 def test_check_jwt_no_jwt(mocker):
     def mock_get_jwt(req):
         return ""
-
     mocker.patch(
         "mesi_search.utils.get_jwt",
         mock_get_jwt
