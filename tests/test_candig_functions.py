@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from mesi_search import candig
 from requests.models import Response
 
