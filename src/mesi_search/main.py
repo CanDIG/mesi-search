@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """MESI application, main
 TODO: Send only the data from attrs_of_interest back to avoid sending changing data
-TODO: Add Dockerfile, docker-compose
+TODO: Add docker-compose
 """
 
 import json
