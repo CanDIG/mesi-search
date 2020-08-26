@@ -1,8 +1,9 @@
 -r base.txt
 
-pytest
-flake8
 coverage
+flake8
 mock
+pytest
 pytest-cov
+pytest-mock
 tox

@@ -3,7 +3,7 @@
 
 Most configuration is set via environment variables.
 Create a `.env` file in the current directory where
-this `config.py` is and add environment variables that
+this `settings.py` is and add environment variables that
 are required
 
 For examples, see `etc/dev/.env.bash` or `etc/dev/.env.fish`
@@ -19,4 +19,4 @@ TESTING = env.bool("FLASK_TESTING", default=False)
 CANDIG_UPSTREAM_API = env.str("CANDIG_UPSTREAM_API")
 SECRET_KEY = env.str("SECRET_KEY")
 DP_EPSILON = env.float("DP_EPSILON")
-DP_DELTA = env.float("DP_DELTA", 0.0)  # it is ok to have pure dp if you want
+DP_DELTA = env.float("DP_DELTA", 0.0)  # it is ok to have pure ϵ dp if you want
