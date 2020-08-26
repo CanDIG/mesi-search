@@ -23,6 +23,15 @@ pip install -r requirements/dev.txt
 
 ### Run project
 
+#### Prerequisites
+
+Please set the following environment variables, which should also be passed
+to the Docker container via `-e` switch. These values are required: 
+
+- `CANDIG_UPSTREAM_API` (URI): CanDIG V1 API URL
+- `SECRET_KEY` (string): A Flask application secret key, that is secure and safe
+- `DP_EPSILON` (float): Epsilon value 
+
 ```bash 
 python bin/run.py
 ```
@@ -64,7 +73,7 @@ pip install .
 ### Run using `gunicorn`
 
 ```bash
-gunicorn --workers 2 --bind 0.0.0.0:5000 -k gevent run:app --chdir bin
+gunicorn --bind :5000 run:app --chdir bin
 ```
 
 
