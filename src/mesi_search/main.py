@@ -50,10 +50,9 @@ def discover_candig_patient():
     # save attributes of interest to session, as well as result this is to save
     # recalculation and send different data for the same user.
     # TODO: Save the session in persistent storage
-    attrs_of_interest_from_session = session.get("attributes_of_interest", [])
-    attrs_of_interest_from_session += attribute_of_interest
-    attrs_of_interest_from_session = list(set(attrs_of_interest_from_session))
-    session["attributes_of_interest"] = attrs_of_interest_from_session
+    attrs_of_interest_from_session = set(session.get("attributes_of_interest", []))
+    attrs_of_interest_from_session.update(attribute_of_interest)
+    session["attributes_of_interest"] = list(attrs_of_interest_from_session)
 
     result = {"datasets": private_filtered_data}
     session["result"] = result
