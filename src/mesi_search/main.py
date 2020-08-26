@@ -56,7 +56,6 @@ def discover_candig_patient():
 
     result = {"datasets": private_filtered_data}
     session["result"] = result
-    print(attrs_of_interest_from_session)
     return jsonify(result)
 
 
