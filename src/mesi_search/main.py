@@ -12,7 +12,7 @@ from flask import Flask, jsonify, render_template, request, session
 from flask_limiter import Limiter
 from mesi_search import candig
 from mesi_search.swagger import SWAGGER_TEMPLATE, SWAGGER_CONFIG
-from mesi_search.utils import authorize
+from mesi_search.utils import authorize, flask_limiter_key
 
 APP = Flask(__name__)
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ def home():
 
 
 @APP.route('/api/candig/patient', methods=['POST'])
-@limiter.limit("100/minute")
+@limiter.limit("10/minute", key_func=flask_limiter_key)
 @swag_from('resources/discovery.yaml', validation=True)
 @authorize
 def discover_candig_patient():
@@ -56,6 +56,7 @@ def discover_candig_patient():
 
     result = {"datasets": private_filtered_data}
     session["result"] = result
+
     return jsonify(result)
 
 
